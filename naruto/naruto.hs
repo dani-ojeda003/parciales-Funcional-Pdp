@@ -22,8 +22,19 @@ nombreHerramienta :: Herramienta -> String
 nombreHerramienta = fst
 
 -- A.
+{-
+obtenerHerramienta: cada ninja debe poder
+obtener una cantidad específica de una herramienta en particular teniendo en cuenta
+que:
+i. si la suma de todas sus herramientas más la cantidad a obtener es menor o
+igual a 100, puede hacerlo sin problemas;
+ii. en caso contrario, obtiene la cantidad que pueda sin excederse de 100
+herramientas.
+-}
+
 
 -- A.a.
+
 
 obtenerHerramienta :: Herramienta -> Ninja -> Ninja
 obtenerHerramienta unaHerramienta uneNinja = mapHerramientas ((mapCantidad . min . cuantasHerramientasPuedeObtener) uneNinja unaHerramienta :) uneNinja
@@ -40,6 +51,34 @@ usarHerramienta :: String -> Ninja -> Ninja
 usarHerramienta unNombreDeHerramienta uneNinja = mapHerramientas (filter ((/= unNombreDeHerramienta) . nombreHerramienta)) uneNinja
 
 -- B
+{-
+a-esDesafiante: dado un equipo de ninjas, una misión es desafiante cuando al menos
+alguien del equipo tiene menor rango que el recomendado y hay que derrotar al
+menos 2 enemigos.
+b. esCopada: esto pasa cuando la recompensa de la misión son 3 bombas de humo, 5
+shurikens o 14 kunais.
+c. esFactible: para que una misión sea factible no tiene que ser desafiante y además
+el grupo debe contar con la cantidad de ninjas necesaria o la suma total de
+herramientas del equipo debe ser superior a 500.
+
+Las misiones se pueden completar con éxito o no:
+d. fallarMision: la vida no siempre es fácil... ni en nuestro mundo ni en el mundo ninja.
+Cuando una misión falla sólo quedan en el equipo quienes tengan el rango
+recomendado o superior. Quienes queden sufrirán la vergüenza de ver su rango
+disminuido en 2 unidades. ¡Por el resto del equipo no te preocupes! Te prometemos
+que están bien. 😝
+e. cumplirMision: si todo sale bien, se promociona de rango a cada miembro del
+equipo. Además obtendrán la recompensa teniendo en cuenta la restricción del
+máximo de herramientas.
+¡Todavía no hablamos de los jutsus! Técnicas especiales que nacen de la energía interior de
+cada ninja. Es como un superpoder que hace que las misiones sean más simples 😅.
+Algunas de las que conocemos son:
+f. clonesDeSombra: reduce la cantidad de ninjas que se necesitan para una misión
+en el mismo número que los clones de sombra creados. ¡El tamaño del equipo no
+puede ser menor a 1!
+g. fuerzaDeUnCentenar: elimina a todos los enemigos con rango menor a 500.
+-}
+
 
 data Mision = Mision {
   cantidadDeNinjas :: Int,
@@ -129,6 +168,23 @@ completarMision unEquipo unaMision
   | otherwise                                           = fallarMision unaMision unEquipo
 
 -- C.
+
+{-
+Existe la Gran Guerra Ninja, una misión de rango 100
+que necesita al menos 100000 ninjas para
+completarse, tiene infinitos enemigos y su
+recompensa es el abanico de Madara Uchiha.
+Se pide modelar la granGuerraNinja sabiendo,
+además, que tiene infinitos villanos y son Zetsu 1,
+Zetsu 2, Zetsu 3... Zetsu N, el rango de todos es de
+600 y no tienen jutsus ni herramientas.
+Sabiendo esto y teniendo en cuenta un equipo de
+ninjas finitos, responder qué devuelve y por qué en las
+siguientes funciones:
+a. esDesafiante
+b. esCopada
+c. fuerzaDeUnCentenar
+-}
 
 granGuerraNinja :: Mision
 granGuerraNinja = Mision {
