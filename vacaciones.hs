@@ -89,10 +89,10 @@ Conocer las excursiones desestresantes para un turista. Estas son aquellas que l
 
 
 hacerExcursion :: Excursion->Turista->Turista
-hacerExcursion unaExcursion = cambiarStressPorcentual (-10). unaExcursion 
+hacerExcursion unaExcursion = cambiarStressPorcentual (10). unaExcursion 
 
 cambiarStressPorcentual :: Int->Turista->Turista
-cambiarStressPorcentual unPorcentaje unTurista = modificarStress (div (unPorcentaje * stress unTurista) 100) unTurista
+cambiarStressPorcentual unPorcentaje unTurista = modificarStress (subtract (div (unPorcentaje * stress unTurista) 100)) unTurista
 
 
 deltaSegun :: (a -> Int) -> a -> a -> Int
