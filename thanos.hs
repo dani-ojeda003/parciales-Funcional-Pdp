@@ -176,16 +176,14 @@ gemaMasPoderosa punisher guanteleteDeLocos
 -}
 
 infinitasGemas :: Gema -> [Gema]
-infinitasGemas unaGema = unaGema : repeat unaGema
+infinitasGemas gema = gema:(infinitasGemas gema)
 
 guanteleteDeLocos :: Guantelete
-guanteleteDeLocos = ("vesconite", infinitasGemas tiempo)
+guanteleteDeLocos = ("vesconite" , infinitasGemas tiempo)
 
-completo ::Guantelete
-completo = ("Oro", [tiempo,poder,tiempo, poder, poder])
 
 usoLasTresPrimerasGemas :: Guantelete -> Personaje -> Personaje
-usoLasTresPrimerasGemas unGuantelete = utilizar (take 3. snd $ unGuantelete)  
+usoLasTresPrimerasGemas = (utilizar . take 3. snd) 
 
 -- gemaMasPoderosa punisher guanteleteDeLocos
 -- usoLasTresPrimerasGemas guanteleteDeLocos punisher
