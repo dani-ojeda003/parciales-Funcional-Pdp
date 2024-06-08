@@ -1,3 +1,4 @@
+--La parte de los informes esta sin terminasr, no pude :( --
 import Text.Show.Functions 
 
 
