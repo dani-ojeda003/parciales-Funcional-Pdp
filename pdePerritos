@@ -1,0 +1,171 @@
+import Text.Show.Functions()
+
+doble :: Int -> Int
+doble = (*2)
+
+data Perrito = UnPerrito {
+    raza ::String,
+    juguetesFavoritos:: [String],
+    tiempoEnGuarderia :: Int,
+    energia :: Int
+} deriving Show
+
+data Guarderia = UnaGuarderia{
+    nombre :: String,
+    rutina :: Rutina
+} deriving Show
+
+type Rutina = [Actividad]
+type Actividad = (Ejercicio , Duracion)
+type Ejercicio = Perrito->Perrito
+type Duracion = Int
+
+zara :: Perrito
+zara = UnPerrito "dalmata" ["Pelota" , "mantita"] 90 80 
+
+modificarEnergia :: (Int->Int)->Perrito->Perrito
+modificarEnergia unaFuncion unPerrito = unPerrito {energia = unaFuncion . energia $ unPerrito }
+
+modificarJuguetesFavoritos :: ([String]->[String])->Perrito->Perrito
+modificarJuguetesFavoritos unaFuncion unPerrito = unPerrito {juguetesFavoritos = unaFuncion . juguetesFavoritos $ unPerrito}
+
+vaPermanecerNMinutosOMas :: Int->Perrito->Bool
+vaPermanecerNMinutosOMas cantidadDeMinutos unPerrito= tiempoEnGuarderia unPerrito >= cantidadDeMinutos
+
+
+jugar :: Ejercicio
+jugar unPerrito = modificarEnergia (const (cantidadMinimaDeEnergia unPerrito)) unPerrito
+
+cantidadMinimaDeEnergia :: Perrito->Int
+cantidadMinimaDeEnergia  = max 0 . energia . modificarEnergia (subtract 10) 
+
+
+ladrar :: Int->Ejercicio 
+ladrar cantidadDeLadridos = modificarEnergia (+ div cantidadDeLadridos 2)
+
+
+regalar :: String->Ejercicio
+regalar unJuguete = modificarJuguetesFavoritos (++ [unJuguete])
+
+
+diaDeSpa :: Ejercicio
+diaDeSpa unPerrito
+    | permanece50MinutosYesRazaExtravagante unPerrito = perritoLuegoDeSpa unPerrito
+    | otherwise = unPerrito
+
+
+perritoLuegoDeSpa :: Perrito->Perrito
+perritoLuegoDeSpa = modificarJuguetesFavoritos (++ ["peine de goma"]) . modificarEnergia (const 100) 
+
+permanece50MinutosYesRazaExtravagante :: Perrito->Bool
+permanece50MinutosYesRazaExtravagante unPerrito = vaPermanecerNMinutosOMas 50 unPerrito || esRazaExtravagante unPerrito
+
+esRazaExtravagante :: Perrito->Bool
+esRazaExtravagante unPerrito = raza unPerrito == "dalmata" || raza unPerrito == "pomerania"
+
+
+diaDeCampo :: Ejercicio
+diaDeCampo unPerrito= modificarJuguetesFavoritos (const (pierdePrimerJuguete unPerrito)) unPerrito
+
+
+pierdePrimerJuguete :: Perrito->[String]
+pierdePrimerJuguete unPerrito = filter (/= head (juguetesFavoritos unPerrito) ) . juguetesFavoritos $ unPerrito
+
+
+romeo :: Perrito
+romeo = UnPerrito "mestizo" ["pelota de tennis","munieco de minion","pelota de futbol","hamburguesa ruidosa", "ojotas"] 100000 1
+
+
+guarderiaPDePerritos ::Guarderia
+guarderiaPDePerritos = UnaGuarderia "guarderiaPDePerritos" [(jugar , 30), (ladrar 18 , 20) , (regalar "pelota" , 0) , (diaDeSpa , 120) , (diaDeCampo , 720) ]
+
+
+--Parte B
+puedeEstar :: Perrito->Guarderia->Bool
+puedeEstar unPerrito unaGuarderia= tiempoEnGuarderia unPerrito > duracionDeRutina unaGuarderia
+
+duracionDeRutina :: Guarderia->Int
+duracionDeRutina = sum . map snd . rutina
+
+
+esPerroResponsable ::Perrito->Bool
+esPerroResponsable  = (>3) . cantidadDeJuguetes . diaDeCampo 
+
+cantidadDeJuguetes :: Perrito->Int
+cantidadDeJuguetes  = length . juguetesFavoritos 
+
+
+realizarRutina :: Guarderia->Perrito->Perrito
+realizarRutina unaGuarderia unPerrito
+    | puedeEstar unPerrito unaGuarderia = realizarTodasLasActividades unPerrito unaGuarderia
+    | otherwise = unPerrito
+
+
+realizarTodasLasActividades :: Perrito->Guarderia->Perrito
+realizarTodasLasActividades unPerrito unaGuarderia = foldr ($) unPerrito (map fst . rutina $ unaGuarderia)
+
+
+perritosCansados :: [Perrito]->Guarderia->[Perrito]
+perritosCansados unosPerritos unaGuarderia =  filter (estaCansadoLuegoDeLaRutina unaGuarderia) unosPerritos
+
+
+estaCansadoLuegoDeLaRutina :: Guarderia->Perrito->Bool
+estaCansadoLuegoDeLaRutina unaGuarderia = (<5) . energia . realizarRutina unaGuarderia 
+
+
+--Parte C
+piElPerro :: Perrito
+piElPerro = UnPerrito "labrador" infinitasSoguitas 314 159
+
+soguita :: Int->String
+soguita unNumero = "soguita " ++ show unNumero
+
+infinitasSoguitas :: [String]
+infinitasSoguitas = map soguita [1..]
+
+
+
+esJugueteFavorito :: String->Perrito->Bool
+esJugueteFavorito unJuguete  = elem unJuguete . juguetesFavoritos  
+
+--Ejemplo para punto 3
+sacarJuguetes :: Ejercicio
+sacarJuguetes = modificarJuguetesFavoritos (const [])
+
+guarderiaMala :: Guarderia
+guarderiaMala = UnaGuarderia "guarderia mala"  [(sacarJuguetes, 0), (sacarJuguetes, 10)]
+
+{-
+1: Si es posible saber si pi es de raza extravagante (no lo es)
+esRazaExtravagante piElPerro
+
+2-a: No, seria posible saber si Pi tiene un "huesito" ya que deberia evaluar toda las lista para poder 
+saberlo (es imposible)
+esJugueteFavorito "huesito" piElPerro
+
+b: Seria imposible poder saber si le regalan la pelota luego de pasar por la guarderia (en mi caso)
+ya que al concatenar la pelota al final de la lista de juguetesFavoritos, nunca llegaria 
+a "sumarse" a la lista 
+
+regalar "pelota" piElPerro
+
+c : Es posible averiguar si pi tiene soguita 31112 ,  tardaria un poco pero seria posible (la tiene).
+ya que al utilizarse lazy evaluation, al momento de encontrar que la tiene dejaria evaluar 
+el resto de elementos de la lista infinita
+
+esJugueteFavorito  "soguita 31112" piElPerro
+
+3: Si es posible que pi realice una rutina, pero al momento de realizala y devolverte a pi, la
+consola nunca terminaria de mostrarte la lista de juguetesFavoritos. Pero si creo una funcion que
+le saque todos los juguetes y una guarderia que tenga ese ejercicio, la consola nos devolveria a
+piElPerro sin ningun problema
+
+realizarRutina guarderiaMala piElPerro
+realizarRutina guarderiaPDePerritos piElPerro
+
+4: Nunca terminaria de devolver la lista estera de juguetes favoritos de piElPerro. Yo al crear
+la funcion regalar, le deberia agregar el hueso al final de la lista, pero al ser una lista 
+infinita este nunca se termina sumando a la misma
+
+regalar "hueso" piElPerro
+-}
